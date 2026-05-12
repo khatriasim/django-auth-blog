@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib import admin
 from .models import Post, Comment, Like, Category, Follow, Notification
 
 admin.site.register(Post)
