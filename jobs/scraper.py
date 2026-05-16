@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from urllib.parse import quote_plus
 import time
-from .models import JobListing 
+from .models import JobListing, UserJobMatch
 
 
 def clean_text(value, default='N/A'):
@@ -118,6 +118,7 @@ def save_jobs(jobs):
     saved = 0
     updated = 0
     skipped = 0
+    new_job_ids = []
 
     for job in jobs:
         title = clean_text(job.get('title'))
@@ -143,6 +144,7 @@ def save_jobs(jobs):
             'url': link,
             'source': 'linkedin'
         })
+        new_job_ids.append(job_obj.id)  
         if created:
             print(f"New job saved: {job_obj.title}")
             saved += 1
@@ -154,4 +156,30 @@ def save_jobs(jobs):
         'saved': saved,
         'updated': updated,
         'skipped': skipped,
+        'new_job_ids' : new_job_ids,
     }
+
+
+def match_jobs_to_user(user_id, keyword, new_job_ids):
+    UserJobMatch.objects.filter(
+        user_id=user_id,
+        searched_keyword=keyword
+    ).delete()
+
+    jobs = JobListing.objects.filter(id__in=new_job_ids)
+    matched = 0
+    for job in jobs:
+        _, created = UserJobMatch.objects.update_or_create(
+            user_id=user_id,
+            job=job,
+            defaults={
+                'title': job.title,
+                'company': job.company,
+                'location': job.location,
+                'link': job.url,
+                'searched_keyword': keyword,
+            },
+        )
+        matched += int(created)
+
+    print(f"matched {jobs.count()} jobs, created {matched} new matches")
