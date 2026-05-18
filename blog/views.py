@@ -14,6 +14,60 @@ from .utils import invalidate_post_cache
 from .permissions import IsAdminUser
 from django.db import transaction
 from drf_spectacular.utils import extend_schema
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required, user_passes_test
+from jobs.models import JobListing
+
+
+def is_admin(user):
+    return user.is_staff
+
+
+@login_required
+@user_passes_test(is_admin)
+def dashboard_index(request):
+    context = {
+        'total_users':         User.objects.count(),
+        'total_posts':         Post.objects.count(),
+        'total_jobs':          JobListing.objects.count(),
+        'total_notifications': Notification.objects.count(),
+        'recent_posts':        Post.objects.order_by('-created_at')[:5],
+        'recent_users':        User.objects.order_by('-date_joined')[:5],
+    }
+    return render(request, 'dashboard/index.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def dashboard_users(request):
+    users = User.objects.order_by('-date_joined')
+    context = {
+        'users': users,
+        'total_users': users.count(),
+    }
+    return render(request, 'dashboard/users.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def dashboard_posts(request):
+    posts = Post.objects.order_by('-created_at')
+    context = {
+        'posts': posts,
+        'total_posts': posts.count(),
+    }
+    return render(request, 'dashboard/posts.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def dashboard_jobs(request):
+    from jobs.models import JobListing
+    jobs = JobListing.objects.order_by('-created_at')
+    context = {
+        'jobs': jobs,
+        'total_jobs': jobs.count(),
+    }
+    return render(request, 'dashboard/jobs.html', context)
 
 @extend_schema(tags=['Blog'])
 class CreatePostView(APIView):

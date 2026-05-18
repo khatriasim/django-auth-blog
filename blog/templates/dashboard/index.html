@@ -1,0 +1,103 @@
+{% extends 'dashboard/base.html' %}
+{% block home_active %}active{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">📊 Overview</h3>
+
+<!-- Stat Cards -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="stat-card bg-users">
+            <p><i class="bi bi-people-fill"></i> Total Users</p>
+            <h2>{{ total_users }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-posts">
+            <p><i class="bi bi-file-text-fill"></i> Total Posts</p>
+            <h2>{{ total_posts }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-jobs">
+            <p><i class="bi bi-briefcase-fill"></i> Jobs Scraped</p>
+            <h2>{{ total_jobs }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-notifs">
+            <p><i class="bi bi-bell-fill"></i> Notifications</p>
+            <h2>{{ total_notifications }}</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Posts -->
+<div class="table-card mt-4">
+    <h5 class="mb-3">📝 Recent Posts</h5>
+    <table class="table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in recent_posts %}
+            <tr>
+                <td>{{ post.title }}</td>
+                <td>{{ post.author.username }}</td>
+                <td>
+                    {% if post.status == 'published' %}
+                        <span class="badge bg-success">Published</span>
+                    {% else %}
+                        <span class="badge bg-warning">Draft</span>
+                    {% endif %}
+                </td>
+                <td>{{ post.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Recent Users -->
+<div class="table-card mt-4">
+    <h5 class="mb-3">👥 Recent Users</h5>
+    <table class="table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Joined</th>
+                <th>Staff</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in recent_users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                <td>
+                    {% if user.is_staff %}
+                        <span class="badge bg-danger">Admin</span>
+                    {% else %}
+                        <span class="badge bg-secondary">User</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Add charts later
+</script>
+{% endblock %}

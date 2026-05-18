@@ -24,4 +24,5 @@ urlpatterns = [
     path('notification/<int:pk>/read/', MarkAsReadView.as_view()),
     path('mark-all/', MarkAllReadView.as_view()),
     path('post/<int:pk>/', PostDetailView.as_view()),
+
 ]
